@@ -1,0 +1,9 @@
+# Python-зависимости пакета «Контент на вайбе»
+# Ставятся в изолированный venv внутри пакета (не в системный python).
+python-dotenv>=1.0.0
+google-api-python-client>=2.100.0
+tabulate>=0.9.0
+PyYAML>=6.0
+openai>=1.0.0
+requests>=2.31.0
+# transcribe.py обращается к Deepgram напрямую по REST через requests — отдельный SDK не нужен

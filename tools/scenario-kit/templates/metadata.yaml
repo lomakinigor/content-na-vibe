@@ -1,0 +1,42 @@
+# YouTube Video Project Metadata
+# Копируй этот файл в scripts/{slug}/metadata.yaml и заполняй по мере работы
+
+slug: ""                          # kebab-case, должен совпадать с именем папки
+title: ""                          # полное название видео
+theme: ""                          # основная тема (AI, вайбкодинг, etc)
+format: "screencast"               # screencast | talking-head | mix
+duration_target: 10                # желаемая длина в минутах
+
+# Статус ролика (меняется по мере работы)
+status: "ideation"                 # ideation → scenario → filming → postproduction → publishing → published
+created_at: ""                     # 2026-04-06 12:30
+updated_at: ""                     # обновляется после каждого действия
+
+# Обещания которые были сделаны в видео (заполняется автоматически после анализа)
+promises: []
+# Пример:
+# promises:
+#   - "5 промптов для вайбкодинга"
+#   - "Доступ к курсу за 90% скидку"
+#   - "Свободный вход на практикум"
+
+# Материалы которые нужно выложить (выполненные отмечаются галочкой)
+materials_needed: []
+# Пример:
+# materials_needed:
+#   - "✓ 5 промптов в файле"
+#   - "- Доступ на GetCourse"
+#   - "✓ Ссылка на воронку"
+
+# Когда видео будет опубликовано
+publishing:
+  youtube_url: null                # https://youtube.com/watch?v=...
+  youtube_published_at: null       # 2026-04-06 14:00
+  telegram_url: null               # https://t.me/channel/postid
+  telegram_published_at: null      # 2026-04-06 14:05
+  published_at: null               # финальная дата публикации
+
+# Заметки для себя
+notes: ""
+# Пример:
+# notes: "Начальная идея - показать как вайбкодинг позволяет создать AI-агента за 1 день"

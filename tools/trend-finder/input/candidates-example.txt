@@ -1,0 +1,7 @@
+# Candidates for trend analysis — one URL per line
+# Lines starting with # are ignored
+# Supports: youtube.com/watch?v=ID, youtu.be/ID, youtube.com/shorts/ID
+
+https://www.youtube.com/watch?v=sx6ZSbc51gY
+https://www.youtube.com/watch?v=MieTeHQmXMs
+https://youtu.be/pJylXFAC87A

@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Создай AI-агента за 1 день — пошаговая методичка</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Outfit:wght@300;400;500;600;700;800&family=Manrope:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #06060a; --bg-card: #0d0d14; --bg-code: #0f0f18;
+    --border: #1a1a2e; --border-active: #3b3b6d;
+    --text: #c8c8d8; --text-dim: #6e6e88; --text-bright: #eeeef4;
+    --accent: #7c6aef; --accent-glow: #7c6aef44;
+    --accent2: #4ecdc4; --accent3: #ff6b9d;
+    --warn: #f0a030; --green: #4ade80;
+    --header-h: 60px;
+  }
+  html { scroll-behavior: smooth; scroll-padding-top: 80px; }
+  body { font-family: 'Manrope', sans-serif; background: var(--bg); color: var(--text); line-height: 1.75; font-size: 15px; -webkit-font-smoothing: antialiased; }
+
+  /* HEADER */
+  .header {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    height: var(--header-h); background: rgba(6,6,10,0.92);
+    backdrop-filter: blur(20px); border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; padding: 0 32px; gap: 16px;
+  }
+  .header-badge {
+    font-family: 'Outfit', sans-serif; font-size: 11px; font-weight: 700;
+    letter-spacing: 1.5px; text-transform: uppercase;
+    background: linear-gradient(135deg, var(--accent), var(--accent3));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  }
+  .header-sep { width: 1px; height: 18px; background: var(--border); }
+  .header-title { font-family: 'Outfit', sans-serif; font-size: 15px; font-weight: 700; color: var(--text-bright); }
+  .header-right { margin-left: auto; display: flex; align-items: center; gap: 12px; }
+  .hpw { display: flex; align-items: center; gap: 10px; font-size: 12px; color: var(--text-dim); font-weight: 500; }
+  .hpb { width: 90px; height: 3px; border-radius: 2px; background: var(--border); overflow: hidden; }
+  .hpf { height: 100%; border-radius: 2px; background: linear-gradient(90deg, var(--accent), var(--accent2)); width: 0%; transition: width 0.5s ease; }
+
+  /* MAIN */
+  .main { margin-top: var(--header-h); max-width: 820px; margin-left: auto; margin-right: auto; padding: 52px 32px 120px; }
+
+  /* HERO */
+  .hero {
+    margin-bottom: 64px; padding: 48px 48px 40px;
+    border-radius: 20px;
+    background: linear-gradient(135deg, #0d0d1a 0%, #14142a 50%, #0d0d1a 100%);
+    border: 1px solid var(--border); position: relative; overflow: hidden;
+  }
+  .hero::before {
+    content: ''; position: absolute; top: -80px; right: -80px;
+    width: 280px; height: 280px; border-radius: 50%;
+    background: radial-gradient(circle, var(--accent-glow), transparent 70%); pointer-events: none;
+  }
+  .hero-eyebrow { font-family: 'Outfit', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--accent); margin-bottom: 14px; position: relative; }
+  .hero h1 { font-family: 'Outfit', sans-serif; font-size: clamp(26px, 4vw, 38px); font-weight: 800; line-height: 1.2; color: var(--text-bright); margin-bottom: 14px; position: relative; }
+  .hero p { font-size: 16px; color: var(--text-dim); max-width: 500px; line-height: 1.7; position: relative; margin-bottom: 28px; }
+  .hero-stats { display: flex; gap: 32px; flex-wrap: wrap; position: relative; }
+  .hero-stat .num { display: block; font-family: 'Outfit', sans-serif; font-size: 28px; font-weight: 800; color: var(--accent); }
+  .hero-stat .lbl { font-size: 12px; color: var(--text-dim); }
+
+  /* SECTIONS */
+  .section { margin-bottom: 60px; animation: fadeUp 0.4s ease both; }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+  .section-header { display: flex; align-items: center; gap: 14px; margin-bottom: 28px; padding-bottom: 16px; border-bottom: 1px solid var(--border); }
+  .section-num { font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 700; width: 34px; height: 34px; border-radius: 10px; background: linear-gradient(135deg, var(--accent), #5b4fd6); color: #fff; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+  .section h2 { font-family: 'Outfit', sans-serif; font-size: 22px; font-weight: 700; color: var(--text-bright); }
+  .section-sub { font-size: 14px; color: var(--text-dim); margin-top: 2px; }
+  .section h3 { font-family: 'Outfit', sans-serif; font-size: 15px; font-weight: 600; color: var(--text-bright); margin: 26px 0 10px; }
+  .section p { margin-bottom: 14px; color: var(--text); }
+  .section ul, .section ol { padding-left: 20px; margin-bottom: 14px; }
+  .section li { margin-bottom: 8px; }
+  .section li::marker { color: var(--accent); }
+  .section strong { color: var(--text-bright); font-weight: 600; }
+
+  /* METAPHOR */
+  .metaphor { margin: 20px 0; padding: 16px 20px; background: rgba(124,106,239,0.05); border: 1px solid rgba(124,106,239,0.15); border-left: 3px solid var(--accent); border-radius: 0 10px 10px 0; font-size: 14px; color: #a8a8c4; line-height: 1.7; }
+  .metaphor .tag { font-family: 'Outfit', sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--accent); display: block; margin-bottom: 6px; }
+
+  /* CALLOUTS */
+  .callout { margin: 18px 0; padding: 15px 20px; border-radius: 10px; border-left: 3px solid; font-size: 14px; line-height: 1.7; }
+  .callout-info  { background: rgba(124,106,239,0.06); border-color: var(--accent); }
+  .callout-info strong { color: var(--accent); }
+  .callout-tip   { background: rgba(78,205,196,0.06); border-color: var(--accent2); }
+  .callout-tip strong { color: var(--accent2); }
+  .callout-warn  { background: rgba(240,160,48,0.07); border-color: var(--warn); }
+  .callout-warn strong { color: var(--warn); }
+  .callout-green { background: rgba(74,222,128,0.06); border-color: var(--green); }
+  .callout-green strong { color: var(--green); }
+
+  /* STEPS */
+  .steps { counter-reset: step; list-style: none; padding: 0; margin: 18px 0; }
+  .steps li { counter-increment: step; display: flex; gap: 14px; margin-bottom: 12px; align-items: flex-start; font-size: 15px; color: var(--text); }
+  .steps li::before { content: counter(step); flex-shrink: 0; width: 24px; height: 24px; border-radius: 7px; background: var(--accent); color: #fff; font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; margin-top: 2px; }
+
+  /* PROMPT */
+  .prompt-block { margin: 22px 0; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+  .prompt-header { display: flex; align-items: center; justify-content: space-between; padding: 10px 16px; background: var(--bg-card); border-bottom: 1px solid var(--border); }
+  .prompt-label { font-family: 'Outfit', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--accent2); }
+  .copy-btn { font-family: 'Outfit', sans-serif; font-size: 11px; font-weight: 600; background: var(--bg); border: 1px solid var(--border); color: var(--text-dim); padding: 5px 12px; border-radius: 6px; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 5px; }
+  .copy-btn:hover { background: var(--border); color: var(--text-bright); }
+  .copy-btn.copied { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .prompt-text { padding: 20px; font-family: 'JetBrains Mono', monospace; font-size: 13px; line-height: 1.75; color: #b8b8d0; white-space: pre-wrap; background: var(--bg-code); user-select: all; }
+
+  /* LINKS */
+  .link-row { display: flex; flex-wrap: wrap; gap: 8px; margin: 16px 0; }
+  .link-btn { display: inline-flex; align-items: center; gap: 7px; padding: 9px 16px; border-radius: 8px; font-family: 'Outfit', sans-serif; font-size: 13px; font-weight: 600; text-decoration: none; transition: all 0.2s; }
+  .lb-p { background: var(--accent); color: #fff; border: 1px solid var(--accent); }
+  .lb-p:hover { background: #8f7ef5; transform: translateY(-1px); box-shadow: 0 4px 18px var(--accent-glow); }
+  .lb-o { background: transparent; color: var(--accent); border: 1px solid var(--border-active); }
+  .lb-o:hover { background: rgba(124,106,239,0.08); transform: translateY(-1px); }
+
+  /* CHECKLIST */
+  .checklist { list-style: none; padding: 0; margin: 20px 0; }
+  .checklist li { display: flex; align-items: flex-start; gap: 12px; padding: 10px 14px; border-radius: 8px; margin-bottom: 4px; cursor: pointer; transition: background 0.15s; }
+  .checklist li:hover { background: var(--bg-card); }
+  .checklist li.done { opacity: 0.45; }
+  .check-box { flex-shrink: 0; width: 20px; height: 20px; border-radius: 6px; border: 2px solid var(--border-active); margin-top: 1px; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+  .checklist li.done .check-box { background: var(--accent); border-color: var(--accent); }
+  .checklist li.done .check-box::after { content: '✓'; color: #fff; font-size: 11px; font-weight: 800; }
+  .check-label { font-size: 14px; color: var(--text); line-height: 1.5; }
+
+  /* TROUBLE */
+  .trouble-grid { display: grid; gap: 14px; margin-top: 20px; }
+  .trouble-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 16px 20px; }
+  .trouble-card .q { font-family: 'Outfit', sans-serif; font-size: 13px; font-weight: 700; color: var(--text-bright); margin-bottom: 8px; }
+  .trouble-card .a { font-size: 13px; color: var(--text-dim); line-height: 1.6; }
+
+  /* FOOTER */
+  .footer { border-top: 1px solid var(--border); padding: 48px 32px 32px; max-width: 820px; margin: 0 auto; }
+  .footer-cta-text { font-family: 'Outfit', sans-serif; font-size: 22px; font-weight: 800; color: var(--text-bright); margin-bottom: 8px; }
+  .footer-cta-sub { font-size: 15px; color: var(--text-dim); margin-bottom: 28px; max-width: 500px; }
+  .footer-links { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 32px; }
+  .footer-link { display: inline-flex; align-items: center; gap: 8px; padding: 10px 18px; border-radius: 10px; font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 600; text-decoration: none; transition: all 0.2s; border: 1px solid var(--border); color: var(--text); background: var(--bg-card); }
+  .footer-link:hover { border-color: var(--accent); color: var(--accent); background: rgba(124,106,239,0.06); transform: translateY(-1px); }
+  .footer-link.fl-accent { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .footer-link.fl-accent:hover { background: #8f7ef5; transform: translateY(-1px); }
+  .footer-disclaimer { font-size: 11px; color: var(--text-dim); line-height: 1.6; border-top: 1px solid rgba(26,26,46,0.5); padding-top: 20px; margin-top: 8px; }
+
+  /* BACK TOP */
+  .back-top { position: fixed; bottom: 28px; right: 28px; z-index: 80; width: 42px; height: 42px; border-radius: 12px; background: var(--accent); color: #fff; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 20px var(--accent-glow); opacity: 0; transform: translateY(16px); transition: all 0.3s; pointer-events: none; font-size: 18px; }
+  .back-top.visible { opacity: 1; transform: translateY(0); pointer-events: auto; }
+  .back-top:hover { transform: translateY(-2px); }
+
+  @media (max-width: 640px) {
+    .main { padding: 40px 16px 100px; }
+    .hero { padding: 28px 24px 24px; }
+    .hero h1 { font-size: 22px; }
+    .section h2 { font-size: 19px; }
+    .header { padding: 0 16px; }
+    .header-title { font-size: 13px; }
+    .hpb { width: 60px; }
+    .footer { padding: 36px 16px 28px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="header">
+  <span class="header-badge">Методичка</span>
+  <div class="header-sep"></div>
+  <span class="header-title">Создай AI-агента за 1 день</span>
+  <div class="header-right">
+    <div class="hpw">
+      <div class="hpb"><div class="hpf" id="hpf"></div></div>
+      <span id="hpl">0 / 11</span>
+    </div>
+  </div>
+</header>
+
+<main class="main">
+
+  <div class="hero">
+    <div class="hero-eyebrow">Пошаговая инструкция по видео</div>
+    <h1>Создай AI-агента за 1 день</h1>
+    <p>Всё что нужно чтобы повторить шаги из видео самостоятельно — от установки инструментов до работающего Telegram-бота. Без кода.</p>
+    <div class="hero-stats">
+      <div class="hero-stat"><span class="num">8</span><span class="lbl">шагов</span></div>
+      <div class="hero-stat"><span class="num">6</span><span class="lbl">промптов</span></div>
+      <div class="hero-stat"><span class="num">0</span><span class="lbl">строк кода</span></div>
+    </div>
+  </div>
+
+  <!-- ШАГ 0 -->
+  <section class="section" id="s0">
+    <div class="section-header">
+      <div class="section-num">0</div>
+      <div>
+        <h2>Устанавливаем инструменты</h2>
+        <div class="section-sub">VS Code + Claude Code — всё что нужно для начала</div>
+      </div>
+    </div>
+    <div class="metaphor">
+      <span class="tag">Метафора</span>
+      VS Code — это как столярная мастерская: внутри можно работать с любым инструментом. Мы берём один — Claude Code. Это как нанять программиста, который живёт в твоём компьютере. Говоришь ему что сделать на русском — он делает. Зарплату не просит.
+    </div>
+    <ol class="steps">
+      <li>Скачай <strong>VS Code</strong> — нажми кнопку ниже, выбери Windows или Mac, установи как обычную программу</li>
+      <li>Открой VS Code. Слева найди иконку с четырьмя квадратами — это магазин расширений (как App Store)</li>
+      <li>В строке поиска напечатай <strong>Claude Code</strong>. Найди расширение от Anthropic → нажми Install</li>
+      <li>После установки внизу экрана появится чат с Claude. Войди в аккаунт Anthropic</li>
+    </ol>
+    <div class="link-row">
+      <a class="link-btn lb-p" href="https://code.visualstudio.com/download" target="_blank">↓ Скачать VS Code</a>
+      <a class="link-btn lb-o" href="https://marketplace.visualstudio.com/items?itemName=anthropic.claude-code" target="_blank">↓ Установить Claude Code</a>
+    </div>
+    <div class="callout callout-info">
+      <strong>Важно:</strong> VS Code бесплатный. Claude Code — платный (есть пробный период). Нам нужен именно Claude Code в VS Code, а не обычный Claude в браузере — только он умеет создавать файлы и писать код на твоём компьютере.
+    </div>
+  </section>
+
+  <!-- ШАГ 1 -->
+  <section class="section" id="s1">
+    <div class="section-header">
+      <div class="section-num">1</div>
+      <div>
+        <h2>Формулируем идею</h2>
+        <div class="section-sub">Четыре вопроса — и у тебя готовое ТЗ</div>
+      </div>
+    </div>
+    <p>Любой продукт начинается с идеи. Перед созданием нужно ответить на 4 вопроса и зафиксировать их в файле — Claude будет использовать этот файл на всех следующих шагах.</p>
+    <div class="metaphor">
+      <span class="tag">Метафора</span>
+      Это как перед ремонтом квартиры ответить: что именно хочу сделать, зачем, какая сейчас проблема, и что изменится когда всё готово. Без этого строители будут переделывать по три раза.
+    </div>
+    <div class="prompt-block">
+      <div class="prompt-header">
+        <span class="prompt-label">Промпт 1 — Описание идеи</span>
+        <button class="copy-btn" onclick="copyPrompt(this)">Скопировать</button>
+      </div>
+      <div class="prompt-text">Помоги мне сформулировать идею для AI-агента.
+
+Ответь на 4 вопроса и запиши результат в файл specification.md:
+
+1. Что я хочу собрать? (опиши в одном предложении что за продукт)
+2. Как это создать? (Telegram-бот / веб-приложение / что-то другое)
+3. Какую проблему это решает? (какую боль убирает у пользователя)
+4. Какой результат получу? (что изменится после внедрения)
+
+После того как ответим на эти вопросы — создай файл specification.md и запиши туда нашу идею. Этот файл понадобится на следующих шагах.</div>
+    </div>
+    <ol class="steps">
+      <li>Открой Claude Code в VS Code (чат внизу или сбоку экрана)</li>
+      <li>Скопируй промпт выше и вставь в чат</li>
+      <li>Отвечай на вопросы — например: «хочу бота для записи клиентов в барбершоп»</li>
+      <li>Claude создаст файл <strong>specification.md</strong> — он понадобится на следующих шагах</li>
+    </ol>
+    <div class="callout callout-green">
+      <strong>Из видео:</strong> автор выбрал бота-консультанта для зала единоборств. Проблема — владелец постоянно отвечал на одни вопросы про расписание, цены и запись. После — бот отвечает сам, владелец тренирует людей, заявок стало вдвое больше.
+    </div>
+  </section>
+
+  <!-- ШАГ 2 -->
+  <section class="section" id="s2">
+    <div class="section-header">
+      <div class="section-num">2</div>
+      <div>
+        <h2>Исследуем рынок</h2>
+        <div class="section-sub">Запускаем AI-агентов в интернет — они найдут лучшие идеи</div>
+      </div>
+    </div>
+    <div class="metaphor">
+      <span class="tag">Метафора</span>
+      Раньше маркетолог неделю вручную изучал конкурентов — открывал вкладку за вкладкой. Теперь отправляешь несколько AI-агентов с разными задачами. За 3 минуты они изучат сотни сайтов и принесут 5 лучших идей. Ты просто ждёшь.
+    </div>
+    <div class="prompt-block">
+      <div class="prompt-header">
+        <span class="prompt-label">Промпт 2 — Исследование рынка</span>
+        <button class="copy-btn" onclick="copyPrompt(this)">Скопировать</button>
+      </div>
+      <div class="prompt-text">Вот мой файл спецификации (specification.md). Проведи мне хорошее исследование рынка.
+
+Запусти несколько агентов в интернет. Пусть они посмотрят на форумах, на GitHub, на IT-стартапах — что уже реализовано. Глубоко не копай. Твоя задача: зайти и сравнить что есть на рынке относительно моей идеи.
+
+Принеси мне 5 самых сильных идей которые я могу добавить себе. Например:
+- Какие кнопки должны быть в боте
+- Как правильно построить AI-модуль
+- Какие фишки точно усилят мой продукт
+
+Приведи исследование и дай заключение простым языком.</div>
+    </div>
+    <ol class="steps">
+      <li>Отправь промпт в тот же чат Claude Code</li>
+      <li>На экране видишь как агенты работают — GitHub, форумы, стартапы</li>
+      <li>Через 3–5 минут возвращаются с результатами</li>
+      <li>Claude делает выжимку: 5 лучших идей для твоего продукта</li>
+    </ol>
+    <div class="callout callout-tip">
+      <strong>Совет:</strong> Пока агенты работают — налей кофе. Это реально 3–5 минут. Не торопи.
+    </div>
+    <div class="callout callout-green">
+      <strong>Из видео:</strong> Для бота спортзала нашли: квалификационные вопросы вместо простого приветствия, пошаговая запись через кнопку «Поделиться контактом», цепочка автонапоминаний. автор сам до этого не додумался — интернет принёс готовые идеи.
+    </div>
+  </section>
+
+  <!-- ШАГ 3 -->
+  <section class="section" id="s3">
+    <div class="section-header">
+      <div class="section-num">3</div>
+      <div>
+        <h2>Обновляем спецификацию</h2>
+        <div class="section-sub">Добавляем лучшие идеи с рынка в план</div>
+      </div>
+    </div>
+    <p>Исследование готово. Говоришь Claude: добавь всё найденное в файл спецификации. После этого у тебя полная картина — что и зачем строим.</p>
+    <div class="prompt-block">
+      <div class="prompt-header">
+        <span class="prompt-label">Промпт 3 — Обновление спецификации</span>
+        <button class="copy-btn" onclick="copyPrompt(this)">Скопировать</button>
+      </div>
+      <div class="prompt-text">Отлично! Вот эти фишки которые ты нашёл на рынке — добавь их в мою спецификацию (specification.md) и перепиши её полностью с учётом всех находок.
+
+На следующем шаге мы переходим к разработке, поэтому спецификация должна быть исчерпывающей.
+
+Когда перепишешь — покажи мне финальный вариант и скажи: «Спецификация готова к разработке».</div>
+    </div>
+  </section>
+
+  <!-- ШАГ 4 -->
+  <section class="section" id="s4">
+    <div class="section-header">
+      <div class="section-num">4</div>
+      <div>
+        <h2>Создаём план разработки</h2>
+        <div class="section-sub">Claude составит план ДО того как начнёт писать код</div>
+      </div>
+    </div>
+    <div class="metaphor">
+      <span class="tag">Метафора</span>
+      Это как попросить строителя: сначала покажи мне что и в каком порядке будешь делать — потом начинай. Тогда он идёт по плану, отмечает что сделал, и меньше ошибается.
+    </div>
+    <div class="prompt-block">
+      <div class="prompt-header">
+        <span class="prompt-label">Промпт 4 — План разработки</span>
+        <button class="copy-btn" onclick="copyPrompt(this)">Скопировать</button>
+      </div>
+      <div class="prompt-text">Создай пошаговый план для разработки этого бота, опираясь на спецификацию (specification.md).
+
+Сначала пришли мне этот план здесь в чате — прежде чем начнёшь разрабатывать.
+
+После того как я одобрю план — сохрани его в отдельный файл plan.md.
+Когда будешь выполнять работы — отмечай галочкой какой шаг уже выполнил.</div>
+    </div>
+    <div class="callout callout-info">
+      <strong>Почему это важно:</strong> На этом этапе могут появиться новые идеи — добавь их прямо сейчас. Скажи Claude: «Добавь ещё вот это». Лучше сейчас, чем переделывать потом когда код уже написан.
+    </div>
+  </section>
+
+  <!-- ШАГ 5 -->
+  <section class="section" id="s5">
+    <div class="section-header">
+      <div class="section-num">5</div>
+      <div>
+        <h2>Запускаем разработку</h2>
+        <div class="section-sub">Говоришь что нужно — Claude пишет код сам</div>
+      </div>
+    </div>
+    <div class="metaphor">
+      <span class="tag">Метафора</span>
+      Это как дать задание новому сотруднику и сказать: «Бери всё на себя. Если что-то нужно от меня — объясни простым языком». Ты не лезешь в детали, но остаёшься на связи.
+    </div>
+    <div class="prompt-block">
+      <div class="prompt-header">
+        <span class="prompt-label">Промпт 5 — Разработка бота</span>
+        <button class="copy-btn" onclick="copyPrompt(this)">Скопировать</button>
+      </div>
+      <div class="prompt-text">А теперь, следуя этому плану (plan.md), создай мне Telegram-бота, чтобы я уже через 10–15 минут смог его протестировать и запустить.
+
+Максимально бери на себя все задачи — я не программист, и мало что понимаю в коде.
+
+Со мной разговаривай на простом языке.
+Если ты меня о чём-то просишь — давай пошаговые инструкции: куда нажать, что скопировать, что тебе прислать.
+
+Когда тебе понадобится что-то от меня (токен бота, API ключ, ID) — скажи мне об этом и объясни где это взять.</div>
+    </div>
+    <ol class="steps">
+      <li>Claude начинает создавать файлы прямо на твоём компьютере — видишь их слева в проводнике VS Code</li>
+      <li>Через 10–15 минут он скажет что нужно сделать (обычно — создать бота в Telegram)</li>
+      <li>Следуй его инструкциям — следующие два шага как раз об этом</li>
+    </ol>
+    <div class="callout callout-tip">
+      <strong>Лайфхак:</strong> Пока Claude работает (10–15 минут) — не закрывай VS Code. Можно встать, налить чай. Он позовёт когда нужна помощь.
+    </div>
+  </section>
+
+  <!-- ШАГ 6 -->
+  <section class="section" id="s6">
+    <div class="section-header">
+      <div class="section-num">6</div>
+      <div>
+        <h2>Создаём бота в Telegram</h2>
+        <div class="section-sub">BotFather выдаст токен — официальный пропуск для твоего бота</div>
+      </div>
+    </div>
+    <div class="metaphor">
+      <span class="tag">Метафора</span>
+      BotFather — это как паспортный стол для ботов. Приходишь, называешь имя — тебе выдают официальный документ (токен). Без него бот не сможет работать в Telegram.
+    </div>
+    <ol class="steps">
+      <li>Открой Telegram и найди бота <strong>@BotFather</strong> — с синей галочкой (это официальный)</li>
+      <li>Нажми Start и напиши команду: <strong>/newbot</strong></li>
+      <li>BotFather спросит имя бота — напиши любое: «Помощник Марины» или «Консультант кафе»</li>
+      <li>Потом спросит username — адрес бота. Должен оканчиваться на <strong>bot</strong>. Например: <strong>marina_helper_bot</strong></li>
+      <li>BotFather пришлёт токен — длинная строка. Скопируй и передай Claude в VS Code</li>
+    </ol>
+    <div class="link-row">
+      <a class="link-btn lb-p" href="https://t.me/BotFather" target="_blank">Открыть BotFather в Telegram</a>
+    </div>
+    <div class="callout callout-warn">
+      <strong>Осторожно:</strong> Токен — это как пароль. Никому не показывай и не публикуй публично. Если засветил — создай новый через команду /token у BotFather.
+    </div>
+    <div class="callout callout-info">
+      <strong>Также понадобится твой Telegram ID:</strong> Claude попросит числовой ID (это не username). Найди в Telegram бота <strong>@userinfobot</strong>, напиши ему /start — он пришлёт твой ID. Скопируй и передай Claude.
+    </div>
+  </section>
+
+  <!-- ШАГ 7 -->
+  <section class="section" id="s7">
+    <div class="section-header">
+      <div class="section-num">7</div>
+      <div>
+        <h2>Подключаем AI через OpenRouter</h2>
+        <div class="section-sub">Получаем ключ — чтобы бот умел думать и отвечать на вопросы</div>
+      </div>
+    </div>
+    <div class="metaphor">
+      <span class="tag">Метафора</span>
+      OpenRouter — это маркетплейс AI-мозгов. Как магазин, где берёшь напрокат интеллект разных нейросетей. Платишь только за использование. API ключ — это твоя карточка покупателя.
+    </div>
+    <ol class="steps">
+      <li>Открой сайт <strong>openrouter.ai</strong> и зарегистрируйся через Google или email</li>
+      <li>В левом меню найди раздел <strong>API Keys</strong></li>
+      <li>Нажми кнопку <strong>Create Key</strong></li>
+      <li>Введи любое название (например: my-bot), период — No expiration</li>
+      <li>Нажми Create — ключ появится на экране. <strong>Сразу скопируй</strong> — потом не увидишь!</li>
+      <li>Вернись в VS Code и передай ключ Claude — он положит его в файл .env (это как сейф)</li>
+    </ol>
+    <div class="link-row">
+      <a class="link-btn lb-p" href="https://openrouter.ai" target="_blank">Открыть OpenRouter</a>
+    </div>
+    <div class="callout callout-tip">
+      <strong>Бюджет:</strong> Пополни на $5 для начала — хватит на несколько месяцев тестирования.
+    </div>
+  </section>
+
+  <!-- ШАГ 8 -->
+  <section class="section" id="s8">
+    <div class="section-header">
+      <div class="section-num">8</div>
+      <div>
+        <h2>Тестируем и улучшаем</h2>
+        <div class="section-sub">Говоришь на русском — Claude вносит правки</div>
+      </div>
+    </div>
+    <p>Бот работает. Теперь самое интересное — улучшаешь его прямо во время тестирования, не касаясь кода.</p>
+    <div class="metaphor">
+      <span class="tag">Метафора</span>
+      Это вайбкодинг. Ты как режиссёр — видишь результат и говоришь: «Здесь не нравится, переделай». Claude переделывает. Ты снова проверяешь в Telegram.
+    </div>
+    <div class="prompt-block">
+      <div class="prompt-header">
+        <span class="prompt-label">Промпт 6 — Улучшение бота</span>
+        <button class="copy-btn" onclick="copyPrompt(this)">Скопировать</button>
+      </div>
+      <div class="prompt-text">Посмотри на этого бота глазами человека который видит его впервые.
+
+Он только что нажал /start. Что он видит? Что ему непонятно? Где может застрять?
+
+Предложи план как сделать бота лучше. Что добавить чтобы человек смог:
+— понять что это за бот и что он умеет
+— дойти от /start до целевого действия (запись / заявка / вопрос)
+— не потеряться и не запутаться</div>
+    </div>
+    <h3>Примеры правок из видео</h3>
+    <ul>
+      <li>«Добавь после ответа кнопки, чтобы не нужно было возвращаться в меню»</li>
+      <li>«Добавь приветственное сообщение — чтобы бот представился и объяснил что умеет»</li>
+      <li>«Запоминай имя клиента и обращайся к нему по имени в ответах»</li>
+    </ul>
+    <div class="callout callout-info">
+      <strong>Это и есть вайбкодинг:</strong> Три правки — три минуты. Хочешь добавить платежи — говоришь. Голосовой режим — говоришь. Напоминания — говоришь. Claude делает.
+    </div>
+  </section>
+
+  <!-- ЧЕК-ЛИСТ -->
+  <section class="section" id="cl">
+    <div class="section-header">
+      <div class="section-num">✓</div>
+      <div>
+        <h2>Чек-лист</h2>
+        <div class="section-sub">Отмечай по мере выполнения — прогресс сохраняется</div>
+      </div>
+    </div>
+    <ul class="checklist" id="checklist">
+      <li onclick="toggle(this)" data-id="c0"><div class="check-box"></div><div class="check-label">Установил VS Code</div></li>
+      <li onclick="toggle(this)" data-id="c1"><div class="check-box"></div><div class="check-label">Установил Claude Code и вошёл в аккаунт</div></li>
+      <li onclick="toggle(this)" data-id="c2"><div class="check-box"></div><div class="check-label">Шаг 1 — сформулировал идею. Создан файл specification.md</div></li>
+      <li onclick="toggle(this)" data-id="c3"><div class="check-box"></div><div class="check-label">Шаг 2 — провёл исследование рынка. Получил 5 идей</div></li>
+      <li onclick="toggle(this)" data-id="c4"><div class="check-box"></div><div class="check-label">Шаг 3 — обновил спецификацию с лучшими фишками</div></li>
+      <li onclick="toggle(this)" data-id="c5"><div class="check-box"></div><div class="check-label">Шаг 4 — создал план разработки. Создан файл plan.md</div></li>
+      <li onclick="toggle(this)" data-id="c6"><div class="check-box"></div><div class="check-label">Шаг 5 — запустил разработку. Claude создаёт файлы</div></li>
+      <li onclick="toggle(this)" data-id="c7"><div class="check-box"></div><div class="check-label">Шаг 6 — создал бота через @BotFather. Получил токен</div></li>
+      <li onclick="toggle(this)" data-id="c8"><div class="check-box"></div><div class="check-label">Шаг 7 — зарегистрировался в OpenRouter. Получил API ключ</div></li>
+      <li onclick="toggle(this)" data-id="c9"><div class="check-box"></div><div class="check-label">Шаг 8 — протестировал бота в Telegram. Бот отвечает</div></li>
+      <li onclick="toggle(this)" data-id="c10"><div class="check-box"></div><div class="check-label">Шаг 8 — внёс 3 правки голосом. Бот стал лучше</div></li>
+    </ul>
+  </section>
+
+  <!-- ПРОБЛЕМЫ -->
+  <section class="section" id="trouble">
+    <div class="section-header">
+      <div class="section-num">?</div>
+      <div>
+        <h2>Если что-то не работает</h2>
+        <div class="section-sub">Самые частые ситуации и как их решить</div>
+      </div>
+    </div>
+    <div class="trouble-grid">
+      <div class="trouble-card">
+        <div class="q">Бот не отвечает в Telegram</div>
+        <div class="a">Скорее всего сервер не запущен. Вернись в VS Code и напиши Claude: «Как запустить бота?». Он даст точную команду для твоего проекта.</div>
+      </div>
+      <div class="trouble-card">
+        <div class="q">Claude Code не видит мои файлы</div>
+        <div class="a">Убедись что открыл нужную папку через File → Open Folder. Claude Code работает только с файлами текущей открытой папки.</div>
+      </div>
+      <div class="trouble-card">
+        <div class="q">OpenRouter пишет ошибку об оплате</div>
+        <div class="a">Нужно пополнить баланс. Минимум $5 — хватит на несколько месяцев. Зайди в openrouter.ai → Settings → Credits.</div>
+      </div>
+      <div class="trouble-card">
+        <div class="q">BotFather не принимает username</div>
+        <div class="a">Username должен оканчиваться на «bot» и быть уникальным. Попробуй добавить цифры или город: marina2024_bot, cafe_msk_bot, fitness_spb_bot.</div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="footer">
+  <div class="footer-cta-text">Бот готов — что дальше?</div>
+  <div class="footer-cta-sub">
+    Ты только что сделал то, за что программисты берут от 30 000 ₽. Без кода. Голосом. За один день.<br>
+    Подпишись — каждый четверг новое видео с промптами и шаблонами.
+  </div>
+  <div class="footer-links">
+    <a class="footer-link fl-accent" href="https://t.me/example" target="_blank">Telegram-канал — промпты и шаблоны</a>
+    <a class="footer-link" href="https://www.youtube.com/@example" target="_blank">YouTube-канал</a>
+    <a class="footer-link" href="https://www.instagram.com/ledovskikh/" target="_blank">Instagram*</a>
+    <a class="footer-link" href="https://t.me/neuro_wbnr_robot?start=youtube" target="_blank">Практикум по вайбкодингу</a>
+  </div>
+  <div class="footer-disclaimer">
+    * Meta Platforms Inc. признана экстремистской организацией на территории Российской Федерации.
+  </div>
+</footer>
+
+<button class="back-top" id="backTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+
+<script>
+function toggle(li) {
+  li.classList.toggle('done');
+  localStorage.setItem('ck_' + li.dataset.id, li.classList.contains('done') ? '1' : '0');
+  updateProgress();
+}
+function updateProgress() {
+  const total = document.querySelectorAll('#checklist li').length;
+  const done  = document.querySelectorAll('#checklist li.done').length;
+  document.getElementById('hpf').style.width = Math.round(done / total * 100) + '%';
+  document.getElementById('hpl').textContent = done + ' / ' + total;
+}
+document.querySelectorAll('#checklist li').forEach(li => {
+  if (localStorage.getItem('ck_' + li.dataset.id) === '1') li.classList.add('done');
+});
+updateProgress();
+
+function copyPrompt(btn) {
+  const text = btn.closest('.prompt-block').querySelector('.prompt-text').textContent;
+  navigator.clipboard.writeText(text.trim()).then(() => {
+    btn.textContent = '✓ Скопировано';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'Скопировать'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+
+const bt = document.getElementById('backTop');
+window.addEventListener('scroll', () => bt.classList.toggle('visible', window.scrollY > 400));
+</script>
+</body>
+</html>
